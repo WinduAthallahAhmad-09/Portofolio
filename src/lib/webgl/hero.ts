@@ -11,7 +11,7 @@ void main() {
 
 export const initHeroWebGL = (container: HTMLElement) => {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isSaveData = (navigator as any).connection?.saveData === true;
+  const isSaveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
   if (prefersReducedMotion || isSaveData) {
     applyFallback(container);
     return;
@@ -39,9 +39,9 @@ export const initHeroWebGL = (container: HTMLElement) => {
     const hexToRgb = (hex: string) => {
       const c = hex.replace('#', '');
       return [
-        parseInt(c.substr(0, 2), 16) / 255,
-        parseInt(c.substr(2, 2), 16) / 255,
-        parseInt(c.substr(4, 2), 16) / 255
+        parseInt(c.slice(0, 2), 16) / 255,
+        parseInt(c.slice(2, 4), 16) / 255,
+        parseInt(c.slice(4, 6), 16) / 255
       ];
     };
 
@@ -63,8 +63,8 @@ export const initHeroWebGL = (container: HTMLElement) => {
 
     const mesh = new Mesh(gl, { geometry, program });
 
-    let currentMouse = { x: 0.5, y: 0.5 };
-    let targetMouse = { x: 0.5, y: 0.5 };
+    const currentMouse = { x: 0.5, y: 0.5 };
+    const targetMouse = { x: 0.5, y: 0.5 };
     
     const onMouseMove = (e: MouseEvent) => {
       targetMouse.x = e.clientX / window.innerWidth;
@@ -72,7 +72,7 @@ export const initHeroWebGL = (container: HTMLElement) => {
     };
     window.addEventListener('mousemove', onMouseMove, { passive: true });
 
-    let resizeObserver = new ResizeObserver((entries) => {
+    const resizeObserver = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
       renderer.setSize(width, height);
       program.uniforms.uResolution.value = [width, height];
@@ -104,7 +104,7 @@ export const initHeroWebGL = (container: HTMLElement) => {
     
     observer.observe(container);
 
-    (container as any).__cleanup_webgl = () => {
+    container.__cleanupWebGL = () => {
       window.removeEventListener('mousemove', onMouseMove);
       observer.disconnect();
       resizeObserver.disconnect();
@@ -127,8 +127,8 @@ const applyFallback = (container: HTMLElement) => {
 };
 
 export const destroyHeroWebGL = (container: HTMLElement) => {
-  if ((container as any).__cleanup_webgl) {
-    (container as any).__cleanup_webgl();
-    delete (container as any).__cleanup_webgl;
+  if (container.__cleanupWebGL) {
+    container.__cleanupWebGL();
+    delete container.__cleanupWebGL;
   }
 };

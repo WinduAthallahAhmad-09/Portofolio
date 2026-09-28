@@ -6,6 +6,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Preloader from '../components/Preloader.astro';
 import SoundGate from '../components/SoundGate.astro';
+import GridBackground from '../components/GridBackground.astro';
 
 import '@fontsource-variable/space-grotesk';
 import '@fontsource-variable/inter';
@@ -45,12 +46,13 @@ const { title = siteConfig.name, description = siteConfig.description } = Astro.
     
     <ClientRouter fallback="swap" />
   </head>
-  <body transition:animate="none" class="flex flex-col min-h-screen">
+  <body transition:animate="none" class="flex flex-col min-h-screen relative">
+    <GridBackground />
     <Preloader />
     <SoundGate />
     <div id="page-transition-overlay" class="fixed inset-0 bg-surface z-[100] translate-y-full pointer-events-none" aria-hidden="true" transition:persist></div>
     <Header />
-    <main class="flex-grow pt-16 lg:pt-[72px]">
+    <main class="flex-grow pt-16 lg:pt-[72px] relative z-10">
       <slot />
     </main>
     <Footer />

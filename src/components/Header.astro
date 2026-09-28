@@ -95,6 +95,8 @@ const isActive = (href: string) => {
 </header>
 
 <script>
+  import { getLenis } from '../lib/motion/lenis';
+
   // Hide on scroll down, show on scroll up
   let lastScroll = 0;
   const header = document.getElementById('site-header');
@@ -146,7 +148,7 @@ const isActive = (href: string) => {
       }
 
       // Mock lenis stop
-      if ((window as any).lenis) (window as any).lenis.stop();
+      if (getLenis()) getLenis()?.stop();
       else document.body.style.overflow = 'hidden';
       
     } else {
@@ -163,7 +165,7 @@ const isActive = (href: string) => {
         lines[1].style.transform = 'none';
       }
 
-      if ((window as any).lenis) (window as any).lenis.start();
+      if (getLenis()) getLenis()?.start();
       else document.body.style.overflow = '';
     }
   };

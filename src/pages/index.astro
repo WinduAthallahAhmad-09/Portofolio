@@ -41,9 +41,12 @@ const latestNews = allNews
   <section class="py-[clamp(96px,14vw,192px)] border-t border-line">
     <Container>
       <Grid>
-        <div class="col-span-4 sm:col-span-8 lg:col-start-1 lg:col-span-8">
-          <p class="display-lg" data-reveal="words">
+        <div class="col-span-4 sm:col-span-8 lg:col-start-1 lg:col-span-10">
+          <p class="display-lg mb-8 text-text" data-reveal="fade">
             Windu Athallah Ahmad
+          </p>
+          <p class="h3 text-text max-w-3xl mt-6" data-reveal="fade">
+            An Informatics Engineering student at UIN Jakarta, deeply passionate about Artificial Intelligence. I specialize in exploring Agentic AI and designing automated AI workflows to build intelligent, autonomous problem-solving systems.
           </p>
         </div>
       </Grid>
@@ -133,7 +136,6 @@ const latestNews = allNews
     const runIntro = () => {
       if (isIntroRun) return;
       isIntroRun = true;
-      sessionStorage.setItem('home-intro', 'true');
 
       // Tagline split
       const text = new SplitType(heroTitle, { types: 'lines' });
@@ -161,16 +163,26 @@ const latestNews = allNews
       }
     };
 
-    if (sessionStorage.getItem('home-intro') === 'true') {
+    if (window.__spaNavigatedHome) {
       if (canvasContainer) canvasContainer.style.opacity = '1';
       if (header) header.style.opacity = '1';
     } else {
+      window.__spaNavigatedHome = true;
       if (canvasContainer) canvasContainer.style.opacity = '0';
       if (header) header.style.opacity = '0';
-      gsap.set(heroTitle, { opacity: 0 }); // Hide briefly before split handles it
+      gsap.set(heroTitle, { opacity: 0 });
       setTimeout(() => gsap.set(heroTitle, { opacity: 1 }), 50);
 
+      // Listen for intro:start or preloader:complete
       document.addEventListener('intro:start', runIntro, { once: true });
+      document.addEventListener('preloader:complete', runIntro, { once: true });
+
+      // Fallback: run intro if event not received
+      setTimeout(() => {
+        if (!isIntroRun) {
+          runIntro();
+        }
+      }, 1500);
     }
 
     // Initialize WebGL Hero

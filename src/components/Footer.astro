@@ -6,7 +6,7 @@ import { siteConfig } from '../config/site';
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="bg-surface pt-32 pb-8 border-t border-line mt-32">
+<footer class="bg-surface/85 backdrop-blur-sm pt-32 pb-8 border-t border-line mt-32 relative z-10">
   <Container>
     <Grid class="mb-24">
       <div class="col-span-4 sm:col-span-8 lg:col-span-12">
@@ -19,7 +19,7 @@ const currentYear = new Date().getFullYear();
         <span class="label-text text-text-muted">Links</span>
         <ul class="flex flex-col gap-2">
           <li><a href="/works" class="hover:text-accent transition-colors">Works</a></li>
-          <li><a href="/news" class="hover:text-accent transition-colors">News</a></li>
+          <li><a href="/certificate" class="hover:text-accent transition-colors">Certificate</a></li>
           <li><a href="/about" class="hover:text-accent transition-colors">About</a></li>
           <li><a href="/contact" class="hover:text-accent transition-colors">Contact</a></li>
         </ul>
@@ -49,10 +49,13 @@ const currentYear = new Date().getFullYear();
 </footer>
 
 <script>
+  import { getLenis } from '../lib/motion/lenis';
+
   const backToTop = document.getElementById('back-to-top');
   backToTop?.addEventListener('click', () => {
-    if ((window as any).lenis) {
-      (window as any).lenis.scrollTo(0);
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.scrollTo(0);
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }

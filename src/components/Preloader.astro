@@ -10,33 +10,47 @@ import { siteConfig } from '../config/site';
 </div>
 
 <script is:inline>
-  if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('preloaded') === 'true') {
+  // If navigating internally between pages, skip preloader so navigation is instant
+  if (window.__spaNavigated) {
     const el = document.getElementById('preloader');
     if (el) el.style.display = 'none';
   }
 </script>
+
 <script>
   import { gsap } from 'gsap';
-  
-  document.addEventListener('DOMContentLoaded', () => {
+
+  // Mark internal transitions so clicking links doesn't replay the preloader
+  document.addEventListener('astro:before-preparation', () => {
+    window.__spaNavigated = true;
+  });
+
+  const runPreloader = () => {
     const preloader = document.getElementById('preloader');
     const counter = document.getElementById('preloader-counter');
     const text = document.getElementById('preloader-text');
-    
-    if (sessionStorage.getItem('preloaded') === 'true') {
-      if (preloader) preloader.style.display = 'none';
+
+    if (!preloader) return;
+
+    // If navigating internally via links, bypass preloader
+    if (window.__spaNavigated) {
+      preloader.style.display = 'none';
       return;
     }
 
+    if (preloader.hasAttribute('data-anim-started')) return;
+    preloader.setAttribute('data-anim-started', 'true');
+
+    // Title reveal ("My Studio")
     if (text) {
-      gsap.to(text, { y: 0, opacity: 1, duration: 0.8, ease: 'expo.out' });
+      gsap.to(text, { y: 0, opacity: 1, duration: 0.6, ease: 'expo.out' });
     }
 
-    let progress = { value: 0 };
-    
+    // Counter animation 000 -> 100
+    const progress = { value: 0 };
     gsap.to(progress, {
       value: 100,
-      duration: 1.4,
+      duration: 1.2,
       ease: 'power2.inOut',
       onUpdate: () => {
         if (counter) {
@@ -44,20 +58,22 @@ import { siteConfig } from '../config/site';
         }
       },
       onComplete: () => {
-        sessionStorage.setItem('preloaded', 'true');
-        
-        // Exiting animation
+        // Slide away
         gsap.to(preloader, {
           yPercent: -100,
-          duration: 0.9,
+          duration: 0.8,
           ease: 'expo.inOut',
           onComplete: () => {
-            if (preloader) preloader.style.display = 'none';
-            // Dispatch event to show sound gate
+            preloader.style.display = 'none';
+            window.__spaNavigated = true;
             document.dispatchEvent(new CustomEvent('preloader:complete'));
+            document.dispatchEvent(new CustomEvent('intro:start'));
           }
         });
       }
     });
-  });
+  };
+
+  runPreloader();
+  document.addEventListener('astro:page-load', runPreloader);
 </script>

@@ -1,0 +1,65 @@
+---
+---
+
+<div 
+  class="fixed inset-0 pointer-events-none z-0 overflow-hidden" 
+  aria-hidden="true" 
+  transition:persist="grid-background"
+>
+  <!-- Deep dark base color -->
+  <div class="absolute inset-0 bg-[#060608]"></div>
+
+  <!-- Ambient glow layers matching reference image lighting -->
+  <!-- Top/right subtle indigo-purple glow -->
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_75%_25%,rgba(95,65,190,0.16),transparent_70%)]"></div>
+  
+  <!-- Left/center soft deep-blue atmospheric glow -->
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_20%_65%,rgba(35,55,130,0.12),transparent_70%)]"></div>
+
+  <!-- Center subtle depth vignette -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_40%,rgba(4,4,6,0.65)_100%)]"></div>
+
+  <!-- Tech Grid SVG with Crosshairs (+) -->
+  <svg 
+    class="absolute inset-0 w-full h-full" 
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+  >
+    <defs>
+      <!-- 192px x 192px repeating pattern: 6x6 grid of 32px squares -->
+      <pattern id="tech-grid-pattern" width="192" height="192" patternUnits="userSpaceOnUse">
+        <!-- Minor grid lines (32px intervals) -->
+        <path
+          d="
+            M 32 0 L 32 192 
+            M 64 0 L 64 192 
+            M 96 0 L 96 192 
+            M 128 0 L 128 192 
+            M 160 0 L 160 192 
+            M 192 0 L 192 192 
+            M 0 32 L 192 32 
+            M 0 64 L 192 64 
+            M 0 96 L 192 96 
+            M 0 128 L 192 128 
+            M 0 160 L 192 160 
+            M 0 192 L 192 192
+          "
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.045)"
+          stroke-width="1"
+        />
+        
+        <!-- Crosshairs (+) at intersection (96, 96) -->
+        <path
+          d="M 90 96 L 102 96 M 96 90 L 96 102"
+          fill="none"
+          stroke="rgba(220, 230, 255, 0.38)"
+          stroke-width="1.2"
+          stroke-linecap="square"
+        />
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#tech-grid-pattern)" />
+  </svg>
+</div>

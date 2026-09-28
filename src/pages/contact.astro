@@ -125,7 +125,7 @@ const formEndpoint = import.meta.env.PUBLIC_FORM_ENDPOINT || 'https://formspree.
         } else {
           throw new Error('Form submission failed');
         }
-      } catch (err) {
+      } catch {
         if (errorMsg) {
           errorMsg.textContent = 'Something went wrong. Please try again.';
           errorMsg.classList.remove('opacity-0');

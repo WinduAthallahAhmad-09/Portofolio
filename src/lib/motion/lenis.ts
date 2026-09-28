@@ -28,7 +28,7 @@ export const initLenis = () => {
   gsap.ticker.lagSmoothing(0);
 
   // Attach to window for global access (e.g., from inline scripts)
-  (window as any).lenis = lenis;
+  Object.defineProperty(window, 'lenis', { value: lenis, configurable: true, writable: true });
 };
 
 export const getLenis = () => lenis;

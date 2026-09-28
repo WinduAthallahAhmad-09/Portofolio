@@ -3,7 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { initReveal } from './reveal';
 import { initCursor, destroyCursor } from './cursor';
 import { registerGSAP } from './gsap';
-import { initLenis, getLenis } from './lenis';
+import { initLenis } from './lenis';
 
 let ctx: gsap.Context | null = null;
 

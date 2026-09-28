@@ -10,12 +10,13 @@ export const setupTransitions = () => {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // 1. astro:before-preparation
-  document.addEventListener('astro:before-preparation', (event: any) => {
+  document.addEventListener('astro:before-preparation', (event: Event) => {
     if (isNavigating) return;
     isNavigating = true;
 
-    const originalLoader = event.loader;
-    event.loader = async () => {
+    const transitionEvent = event as Event & { loader: () => Promise<void> };
+    const originalLoader = transitionEvent.loader;
+    transitionEvent.loader = async () => {
       const overlay = document.getElementById('page-transition-overlay');
       if (overlay) {
         overlay.classList.remove('pointer-events-none');
