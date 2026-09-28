@@ -2,21 +2,28 @@ import { gsap } from 'gsap';
 
 let cursorEl: HTMLElement | null = null;
 let cursorText: HTMLElement | null = null;
+let cursorRing: HTMLElement | null = null;
 let isHovering = false;
 
 // We need a quickTo for x and y
 let xTo: gsap.QuickToFunc;
 let yTo: gsap.QuickToFunc;
+let ringXTo: gsap.QuickToFunc;
+let ringYTo: gsap.QuickToFunc;
 
 const handleMouseMove = (e: MouseEvent) => {
   if (xTo && yTo) {
     xTo(e.clientX);
     yTo(e.clientY);
   }
+  if (ringXTo && ringYTo) {
+    ringXTo(e.clientX);
+    ringYTo(e.clientY);
+  }
 };
 
 const handleMouseOver = (e: MouseEvent) => {
-  if (!cursorEl || !cursorText) return;
+  if (!cursorEl || !cursorText || !cursorRing) return;
   const target = e.target as HTMLElement;
   const cursorTarget = target.closest('[data-cursor], a, button, input, select, textarea') as HTMLElement;
   
@@ -35,6 +42,14 @@ const handleMouseOver = (e: MouseEvent) => {
           duration: 0.4, 
           ease: 'power2.out' 
         });
+        gsap.to(cursorRing, {
+          width: 46,
+          height: 46,
+          opacity: 0.75,
+          borderColor: 'rgba(244, 244, 241, 0.7)',
+          duration: 0.35,
+          ease: 'power2.out'
+        });
         cursorText.style.opacity = '0';
         break;
       case 'view':
@@ -47,11 +62,20 @@ const handleMouseOver = (e: MouseEvent) => {
           duration: 0.4, 
           ease: 'power2.out' 
         });
+        gsap.to(cursorRing, {
+          width: 104,
+          height: 104,
+          opacity: 0.9,
+          borderColor: 'rgba(122, 92, 255, 0.8)',
+          duration: 0.4,
+          ease: 'power2.out'
+        });
         cursorText.style.opacity = '1';
-        cursorText.textContent = 'View';
+        cursorText.textContent = 'View ↗';
         break;
       case 'hide':
         gsap.to(cursorEl, { opacity: 0, duration: 0.2 });
+        gsap.to(cursorRing, { opacity: 0, duration: 0.2 });
         break;
       default:
         // reset to default soft dot
@@ -64,6 +88,14 @@ const handleMouseOver = (e: MouseEvent) => {
           opacity: 1, 
           duration: 0.4, 
           ease: 'power2.out' 
+        });
+        gsap.to(cursorRing, {
+          width: 34,
+          height: 34,
+          opacity: 0.5,
+          borderColor: 'rgba(244, 244, 241, 0.55)',
+          duration: 0.35,
+          ease: 'power2.out'
         });
         cursorText.style.opacity = '0';
         break;
@@ -80,8 +112,25 @@ const handleMouseOver = (e: MouseEvent) => {
       duration: 0.4, 
       ease: 'power2.out' 
     });
+    gsap.to(cursorRing, {
+      width: 34,
+      height: 34,
+      opacity: 0.5,
+      borderColor: 'rgba(244, 244, 241, 0.55)',
+      duration: 0.35,
+      ease: 'power2.out'
+    });
     cursorText.style.opacity = '0';
   }
+};
+
+const handleClick = () => {
+  if (!cursorRing) return;
+  gsap.fromTo(
+    cursorRing,
+    { scale: 0.9 },
+    { scale: 1.2, duration: 0.16, yoyo: true, repeat: 1, ease: 'power1.out', overwrite: 'auto' }
+  );
 };
 
 export const initCursor = () => {
@@ -92,6 +141,21 @@ export const initCursor = () => {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   if (!document.getElementById('custom-cursor')) {
+    cursorRing = document.createElement('div');
+    cursorRing.id = 'custom-cursor-ring';
+    cursorRing.style.cssText = `
+      position: fixed;
+      top: 0; left: 0;
+      width: 34px; height: 34px;
+      border: 1px solid rgba(244, 244, 241, 0.55);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 89;
+      transform: translate(-50%, -50%);
+      will-change: left, top, width, height, transform;
+    `;
+
     cursorEl = document.createElement('div');
     cursorEl.id = 'custom-cursor';
     cursorEl.style.cssText = `
@@ -108,7 +172,7 @@ export const initCursor = () => {
       display: flex;
       align-items: center;
       justify-content: center;
-      will-change: left, top, width, height;
+      will-change: left, top, width, height, transform;
     `;
     
     cursorText = document.createElement('span');
@@ -122,23 +186,29 @@ export const initCursor = () => {
     `;
     
     cursorEl.appendChild(cursorText);
+    document.body.appendChild(cursorRing);
     document.body.appendChild(cursorEl);
     
-    xTo = gsap.quickTo(cursorEl, "left", { duration: 0.5, ease: "power2.out" });
-    yTo = gsap.quickTo(cursorEl, "top", { duration: 0.5, ease: "power2.out" });
+    xTo = gsap.quickTo(cursorEl, 'left', { duration: 0.18, ease: 'power2.out' });
+    yTo = gsap.quickTo(cursorEl, 'top', { duration: 0.18, ease: 'power2.out' });
+    ringXTo = gsap.quickTo(cursorRing, 'left', { duration: 0.48, ease: 'power2.out' });
+    ringYTo = gsap.quickTo(cursorRing, 'top', { duration: 0.48, ease: 'power2.out' });
 
     // Initial position center (hidden until first move)
     gsap.set(cursorEl, { opacity: 0 });
+    gsap.set(cursorRing, { opacity: 0 });
     
     window.addEventListener('mousemove', (e) => {
       if (!isHovering) {
         gsap.to(cursorEl, { opacity: 1, duration: 0.2 });
+        gsap.to(cursorRing, { opacity: 0.5, duration: 0.2 });
         isHovering = true;
       }
       handleMouseMove(e);
     });
     
     document.addEventListener('mouseover', handleMouseOver);
+    document.addEventListener('click', handleClick);
   }
 };
 
