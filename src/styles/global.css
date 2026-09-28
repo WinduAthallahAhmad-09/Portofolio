@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #060607;
+  --color-surface: #101013;
+  --color-surface-2: #17171b;
+  --color-text: #f4f4f1;
+  --color-text-muted: #8c8c94;
+  --color-line: rgba(255, 255, 255, 0.12);
+  --color-accent: #7a5cff;
+
+  --font-display: 'Space Grotesk Variable', sans-serif;
+  --font-body: 'Inter Variable', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Motion tokens */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.87, 0, 0.13, 1);
+  --duration-fast: 0.3s;
+  --duration-base: 0.6s;
+  --duration-slow: 1.0s;
+  --duration-page: 1.2s;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --bg: #060607;
+    --surface: #101013;
+    --surface-2: #17171b;
+    --text: #f4f4f1;
+    --text-muted: #8c8c94;
+    --line: rgba(255, 255, 255, 0.12);
+    --accent: #7a5cff;
+  }
+
+  body {
+    @apply bg-bg text-text font-body antialiased;
+  }
+
+  /* Typography roles */
+
+  .display-xl {
+    @apply font-display font-bold;
+    font-size: clamp(3rem, 9vw, 9rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+  .display-lg {
+    @apply font-display font-medium;
+    font-size: clamp(2.25rem, 5vw, 5rem);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+  }
+  .h2 {
+    @apply font-display font-medium;
+    font-size: clamp(1.5rem, 2.5vw, 2.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .body-text {
+    @apply font-body font-normal text-base;
+    line-height: 1.6;
+  }
+  .label-text {
+    @apply font-mono uppercase text-xs;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+  }
+}
+
+@keyframes equalizer {
+  0% { transform: scaleY(0.2); }
+  100% { transform: scaleY(1); }
+}

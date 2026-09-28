@@ -1,0 +1,75 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/Container.astro';
+import Grid from '../../components/Grid.astro';
+
+export async function getStaticPaths() {
+  const news = await getCollection('news');
+  return news.map(item => ({
+    params: { slug: item.id },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props;
+const { title, date, tags, cover } = item.data;
+const { Content } = await render(item);
+---
+
+<BaseLayout title={`${title} - Certificate`}>
+  <article class="pt-32 pb-32">
+    <Container class="mb-16">
+      <Grid>
+        <div class="col-span-4 sm:col-span-8 lg:col-start-3 lg:col-span-8 text-center">
+          <div class="flex justify-center items-center gap-4 label-text text-text-muted mb-8">
+            <span>{new Date(date).toISOString().split('T')[0]}</span>
+            <span>&bull;</span>
+            <span>{tags.join(', ')}</span>
+          </div>
+          <h1 class="display-lg">{title}</h1>
+        </div>
+      </Grid>
+    </Container>
+
+    {cover && (
+      <Container class="mb-24">
+        <div class="w-full bg-surface-2 overflow-hidden flex justify-center">
+          <Picture 
+            src={cover} 
+            alt={title} 
+            formats={['avif', 'webp']} 
+            widths={[768, 1200, 1920]} 
+            sizes="100vw" 
+            loading="eager"
+            class="w-full h-auto object-contain max-h-[85vh]"
+          />
+        </div>
+      </Container>
+    )}
+
+    <Container>
+      <Grid>
+        <div class="col-span-4 sm:col-span-8 lg:col-start-4 lg:col-span-6 prose prose-invert prose-lg max-w-[720px] mx-auto lg:mx-0">
+          <Content />
+        </div>
+      </Grid>
+    </Container>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  /* Basic prose styling for Markdown */
+  .prose h1, .prose h2, .prose h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    margin-top: 2em;
+    margin-bottom: 1em;
+  }
+  .prose p {
+    margin-bottom: 1.5em;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+</style>

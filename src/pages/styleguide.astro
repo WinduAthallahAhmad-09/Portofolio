@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import Chip from '../components/Chip.astro';
+---
+
+<BaseLayout title="Styleguide - Interaktif Studio">
+  <main class="max-w-[1680px] mx-auto px-[clamp(16px,4vw,64px)] py-[clamp(96px,14vw,192px)] space-y-32">
+    
+    <section>
+      <h1 class="display-lg mb-12 border-b border-line pb-4">Typography</h1>
+      <div class="space-y-8">
+        <div>
+          <span class="label-text text-text-muted block mb-2">Display XL (Space Grotesk 700)</span>
+          <div class="display-xl">Interactive</div>
+        </div>
+        <div>
+          <span class="label-text text-text-muted block mb-2">Display LG (Space Grotesk 500)</span>
+          <div class="display-lg">We build worlds</div>
+        </div>
+        <div>
+          <span class="label-text text-text-muted block mb-2">H2 (Space Grotesk 500)</span>
+          <div class="h2">Selected Works</div>
+        </div>
+        <div>
+          <span class="label-text text-text-muted block mb-2">Body (Inter 400)</span>
+          <div class="body-text max-w-2xl">This is a paragraph demonstrating the body text. We build interactive worlds people remember. Our studio focuses on premium experiences using WebGL, GSAP, and Astro.</div>
+        </div>
+        <div>
+          <span class="label-text text-text-muted block mb-2">Label (JetBrains Mono 400)</span>
+          <div class="label-text">2024 / Interactive</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h1 class="display-lg mb-12 border-b border-line pb-4">Colors</h1>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="space-y-2">
+          <div class="h-24 bg-bg border border-line rounded-lg"></div>
+          <div class="label-text">--bg (#060607)</div>
+        </div>
+        <div class="space-y-2">
+          <div class="h-24 bg-surface border border-line rounded-lg"></div>
+          <div class="label-text">--surface (#101013)</div>
+        </div>
+        <div class="space-y-2">
+          <div class="h-24 bg-surface-2 border border-line rounded-lg"></div>
+          <div class="label-text">--surface-2 (#17171b)</div>
+        </div>
+        <div class="space-y-2">
+          <div class="h-24 bg-accent rounded-lg"></div>
+          <div class="label-text">--accent (#7a5cff)</div>
+        </div>
+        <div class="space-y-2">
+          <div class="h-24 bg-text rounded-lg"></div>
+          <div class="label-text text-text">--text (#f4f4f1)</div>
+        </div>
+        <div class="space-y-2">
+          <div class="h-24 bg-text-muted rounded-lg"></div>
+          <div class="label-text text-text-muted">--text-muted (#8c8c94)</div>
+        </div>
+        <div class="space-y-2">
+          <div class="h-24 bg-line rounded-lg"></div>
+          <div class="label-text">--line</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h1 class="display-lg mb-12 border-b border-line pb-4">Components</h1>
+      
+      <div class="space-y-12">
+        <div class="space-y-4">
+          <h2 class="h2">Buttons</h2>
+          <div class="flex flex-wrap gap-4">
+            <Button variant="primary">Primary Button</Button>
+            <Button variant="ghost">Ghost Button</Button>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="h2">Chips</h2>
+          <div class="flex flex-wrap gap-4">
+            <Chip active={true}>All</Chip>
+            <Chip>WebGL</Chip>
+            <Chip>Interactive</Chip>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</BaseLayout>

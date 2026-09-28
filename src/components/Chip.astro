@@ -1,0 +1,19 @@
+---
+interface Props {
+  active?: boolean;
+  as?: 'button' | 'span';
+  class?: string;
+}
+
+const { active = false, as: Element = 'span', class: className = '' } = Astro.props;
+
+const baseStyles = "inline-flex items-center justify-center h-8 px-4 rounded-full border border-line label-text transition-colors duration-fast ease-out";
+const stateStyles = active ? "bg-text text-bg border-text" : "bg-transparent text-text hover:bg-surface-2";
+---
+
+<Element 
+  class={`${baseStyles} ${stateStyles} ${className}`}
+  aria-pressed={Element === 'button' ? active : undefined}
+>
+  <slot />
+</Element>

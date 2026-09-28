@@ -1,0 +1,66 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { siteConfig } from '../config/site';
+
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Preloader from '../components/Preloader.astro';
+import SoundGate from '../components/SoundGate.astro';
+
+import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/inter';
+import '@fontsource/jetbrains-mono';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = siteConfig.name, description = siteConfig.description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#060607" />
+    <meta name="generator" content={Astro.generator} />
+    
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={siteConfig.name} />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <ClientRouter fallback="swap" />
+  </head>
+  <body transition:animate="none" class="flex flex-col min-h-screen">
+    <Preloader />
+    <SoundGate />
+    <div id="page-transition-overlay" class="fixed inset-0 bg-surface z-[100] translate-y-full pointer-events-none" aria-hidden="true" transition:persist></div>
+    <Header />
+    <main class="flex-grow pt-16 lg:pt-[72px]">
+      <slot />
+    </main>
+    <Footer />
+    
+    <script>
+      import { setupTransitions } from '../lib/motion/transitions';
+      
+      // setupTransitions will register astro:page-load which calls initPage() 
+      // on both initial load and subsequent navigations.
+      setupTransitions();
+    </script>
+  </body>
+</html>

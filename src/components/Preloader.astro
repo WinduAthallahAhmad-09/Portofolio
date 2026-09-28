@@ -1,0 +1,63 @@
+---
+import { siteConfig } from '../config/site';
+---
+
+<div id="preloader" transition:persist="preloader" class="fixed inset-0 bg-bg z-[110] flex items-center justify-center pointer-events-auto origin-top transition-transform">
+  <div class="display-lg relative overflow-hidden">
+    <div id="preloader-text" class="translate-y-full opacity-0">{siteConfig.name}</div>
+  </div>
+  <div class="absolute bottom-8 left-[clamp(16px,4vw,64px)] font-mono text-3xl md:text-5xl" id="preloader-counter">000</div>
+</div>
+
+<script is:inline>
+  if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('preloaded') === 'true') {
+    const el = document.getElementById('preloader');
+    if (el) el.style.display = 'none';
+  }
+</script>
+<script>
+  import { gsap } from 'gsap';
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    const preloader = document.getElementById('preloader');
+    const counter = document.getElementById('preloader-counter');
+    const text = document.getElementById('preloader-text');
+    
+    if (sessionStorage.getItem('preloaded') === 'true') {
+      if (preloader) preloader.style.display = 'none';
+      return;
+    }
+
+    if (text) {
+      gsap.to(text, { y: 0, opacity: 1, duration: 0.8, ease: 'expo.out' });
+    }
+
+    let progress = { value: 0 };
+    
+    gsap.to(progress, {
+      value: 100,
+      duration: 1.4,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        if (counter) {
+          counter.textContent = Math.floor(progress.value).toString().padStart(3, '0');
+        }
+      },
+      onComplete: () => {
+        sessionStorage.setItem('preloaded', 'true');
+        
+        // Exiting animation
+        gsap.to(preloader, {
+          yPercent: -100,
+          duration: 0.9,
+          ease: 'expo.inOut',
+          onComplete: () => {
+            if (preloader) preloader.style.display = 'none';
+            // Dispatch event to show sound gate
+            document.dispatchEvent(new CustomEvent('preloader:complete'));
+          }
+        });
+      }
+    });
+  });
+</script>

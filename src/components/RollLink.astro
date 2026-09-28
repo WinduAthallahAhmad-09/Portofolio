@@ -1,0 +1,21 @@
+---
+interface Props {
+  href?: string;
+  class?: string;
+  active?: boolean;
+}
+const { href, class: className = '', active = false } = Astro.props;
+
+const Element = href ? 'a' : 'button';
+---
+<Element 
+  href={href} 
+  class={`group relative inline-flex items-center overflow-hidden ${className}`}
+  aria-current={active ? "page" : undefined}
+>
+  {active && <span class="w-1 h-1 rounded-full bg-accent absolute -left-3"></span>}
+  <span class="relative inline-block">
+    <span class="block transition-transform duration-500 ease-out group-hover:-translate-y-full group-focus-visible:-translate-y-full"><slot /></span>
+    <span class="block absolute inset-0 translate-y-full transition-transform duration-500 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0" aria-hidden="true"><slot /></span>
+  </span>
+</Element>

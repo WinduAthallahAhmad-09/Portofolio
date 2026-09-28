@@ -1,0 +1,109 @@
+---
+import Button from './Button.astro';
+---
+
+<div id="sound-gate" class="fixed inset-0 bg-bg/90 backdrop-blur-sm z-[120] opacity-0 pointer-events-none transition-opacity duration-400 ease-out flex items-center justify-center">
+  <div class="bg-surface p-8 sm:p-12 max-w-lg w-[calc(100%-32px)] border border-line text-center flex flex-col items-center gap-8 translate-y-8 transition-transform duration-400 ease-out" id="sound-modal">
+    <h2 class="h2">This site includes sound. Enable it?</h2>
+    <div class="flex flex-col sm:flex-row gap-4 w-full">
+      <Button as="button" id="btn-sound-on" variant="primary" class="w-full">Sound on</Button>
+      <Button as="button" id="btn-sound-off" variant="ghost" class="w-full">Continue without sound</Button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { enableAudio, disableAudio, initAudio } from '../lib/audio/sound';
+  
+  // Need to initialize the audio logic and global listeners
+  initAudio();
+
+  const soundGate = document.getElementById('sound-gate');
+  const soundModal = document.getElementById('sound-modal');
+  const btnOn = document.getElementById('btn-sound-on');
+  const btnOff = document.getElementById('btn-sound-off');
+  
+  let gateOpen = false;
+
+  const showGate = () => {
+    if (!soundGate || !soundModal) return;
+    gateOpen = true;
+    soundGate.classList.remove('opacity-0', 'pointer-events-none');
+    soundGate.classList.add('opacity-100', 'pointer-events-auto');
+    soundModal.classList.remove('translate-y-8');
+    soundModal.classList.add('translate-y-0');
+    
+    // Set focus
+    btnOn?.focus();
+  };
+
+  const hideGate = () => {
+    if (!soundGate || !soundModal) return;
+    gateOpen = false;
+    soundGate.classList.remove('opacity-100', 'pointer-events-auto');
+    soundGate.classList.add('opacity-0', 'pointer-events-none');
+    soundModal.classList.remove('translate-y-0');
+    soundModal.classList.add('translate-y-8');
+    
+    // Dispatch event to start intro Home
+    document.dispatchEvent(new CustomEvent('intro:start'));
+  };
+
+  const handleDecision = (enabled: boolean) => {
+    if (enabled) {
+      enableAudio();
+    } else {
+      disableAudio();
+    }
+    hideGate();
+  };
+
+  btnOn?.addEventListener('click', () => handleDecision(true));
+  btnOff?.addEventListener('click', () => handleDecision(false));
+
+  document.addEventListener('keydown', (e) => {
+    if (gateOpen && e.key === 'Escape') {
+      handleDecision(false);
+    }
+    
+    // Simple focus trap
+    if (gateOpen && e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === btnOn) {
+          btnOff?.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === btnOff) {
+          btnOn?.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  });
+
+  // When preloader completes, show gate if no preference
+  document.addEventListener('preloader:complete', () => {
+    const pref = localStorage.getItem('sound-pref');
+    if (!pref) {
+      showGate();
+    } else {
+      document.dispatchEvent(new CustomEvent('intro:start'));
+    }
+  });
+  
+  // If preloader was already skipped (reloaded), check immediately
+  document.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('preloaded') === 'true') {
+      const pref = localStorage.getItem('sound-pref');
+      if (!pref) {
+        showGate();
+      } else {
+        // We delay a tiny bit so intro logic can attach
+        setTimeout(() => {
+          document.dispatchEvent(new CustomEvent('intro:start'));
+        }, 100);
+      }
+    }
+  });
+</script>

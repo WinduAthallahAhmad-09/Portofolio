@@ -1,0 +1,60 @@
+---
+import Container from './Container.astro';
+import Grid from './Grid.astro';
+import { siteConfig } from '../config/site';
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-surface pt-32 pb-8 border-t border-line mt-32">
+  <Container>
+    <Grid class="mb-24">
+      <div class="col-span-4 sm:col-span-8 lg:col-span-12">
+        <h2 class="display-xl text-text opacity-90">{siteConfig.name}</h2>
+      </div>
+    </Grid>
+    
+    <Grid>
+      <div class="col-span-4 sm:col-span-4 lg:col-span-4 flex flex-col gap-4">
+        <span class="label-text text-text-muted">Links</span>
+        <ul class="flex flex-col gap-2">
+          <li><a href="/works" class="hover:text-accent transition-colors">Works</a></li>
+          <li><a href="/news" class="hover:text-accent transition-colors">News</a></li>
+          <li><a href="/about" class="hover:text-accent transition-colors">About</a></li>
+          <li><a href="/contact" class="hover:text-accent transition-colors">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="col-span-4 sm:col-span-4 lg:col-span-4 flex flex-col gap-4 mt-12 sm:mt-0">
+        <span class="label-text text-text-muted">Socials</span>
+        <ul class="flex flex-col gap-2">
+          {siteConfig.socials.map(social => (
+            <li>
+              <a href={social.url} target="_blank" rel="noopener noreferrer" class="hover:text-accent transition-colors">
+                {social.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="col-span-4 sm:col-span-8 lg:col-span-4 flex flex-col gap-4 justify-between mt-12 lg:mt-0 items-start lg:items-end">
+        <button id="back-to-top" class="label-text hover:text-accent transition-colors">
+          Back to Top ↑
+        </button>
+        <span class="text-text-muted text-sm">&copy; {currentYear} {siteConfig.name}. All rights reserved.</span>
+      </div>
+    </Grid>
+  </Container>
+</footer>
+
+<script>
+  const backToTop = document.getElementById('back-to-top');
+  backToTop?.addEventListener('click', () => {
+    if ((window as any).lenis) {
+      (window as any).lenis.scrollTo(0);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+</script>

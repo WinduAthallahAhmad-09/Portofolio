@@ -1,0 +1,198 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Grid from '../components/Grid.astro';
+import WorkCard from '../components/WorkCard.astro';
+import RollLink from '../components/RollLink.astro';
+
+import { siteConfig } from '../config/site';
+
+const allWorks = await getCollection('works');
+const featuredWorks = allWorks
+  .filter(w => w.data.featured)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 6);
+
+const allNews = await getCollection('news');
+const latestNews = allNews
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+---
+
+<BaseLayout>
+  <!-- Hero -->
+  <section class="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+    <!-- WebGL Background -->
+    <div id="hero-canvas-container" class="absolute inset-0 z-0" aria-hidden="true"></div>
+    
+    <Container class="relative z-10 text-center pointer-events-none mt-16">
+      
+      <h1 class="display-xl text-text mix-blend-difference mb-8">
+        {siteConfig.tagline}
+      </h1>
+      <RollLink href="/contact" class="pointer-events-auto">
+        <span class="label-text">Let's Talk</span>
+      </RollLink>
+    </Container>
+  </section>
+
+  <!-- Statement -->
+  <section class="py-[clamp(96px,14vw,192px)] border-t border-line">
+    <Container>
+      <Grid>
+        <div class="col-span-4 sm:col-span-8 lg:col-start-1 lg:col-span-8">
+          <p class="display-lg" data-reveal="words">
+            Windu Athallah Ahmad
+          </p>
+        </div>
+      </Grid>
+    </Container>
+  </section>
+
+  <!-- Selected Works -->
+  <section class="py-[clamp(96px,14vw,192px)] border-t border-line">
+    <Container>
+      <div class="flex justify-between items-end mb-24">
+        <h2 class="h2">Selected Works</h2>
+        <a href="/works" class="label-text hover:text-accent transition-colors flex items-center gap-2">
+          All Works <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+
+      <Grid class="gap-y-16 lg:gap-y-32">
+        {featuredWorks.map((work, idx) => (
+          <div class={`col-span-4 sm:col-span-4 lg:col-span-6 ${idx % 2 === 1 ? 'lg:mt-24' : ''}`} data-reveal="fade">
+            <WorkCard work={work} eager={idx < 2} />
+          </div>
+        ))}
+      </Grid>
+    </Container>
+  </section>
+
+  <!-- Certificate -->
+  <section class="py-[clamp(96px,14vw,192px)] border-t border-line">
+    <Container>
+      <div class="flex justify-between items-end mb-16">
+        <h2 class="h2">Certificates</h2>
+        <a href="/certificate" class="label-text hover:text-accent transition-colors flex items-center gap-2">
+          All Certificates <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+
+      <div class="border-t border-line">
+        {latestNews.map((news) => (
+          <a 
+            href={`/certificate/${news.id}`} 
+            class="group block border-b border-line hover:bg-surface-2 transition-colors duration-fast"
+          >
+            <Grid class="py-8 items-center gap-y-4">
+              <div class="col-span-4 sm:col-span-2 lg:col-span-3">
+                <span class="label-text text-text-muted">
+                  {new Date(news.data.date).toISOString().split('T')[0]}
+                </span>
+              </div>
+              <div class="col-span-4 sm:col-span-5 lg:col-span-6">
+                <h3 class="h2 text-xl sm:text-2xl">{news.data.title}</h3>
+              </div>
+              <div class="col-span-4 sm:col-span-1 lg:col-span-3 flex justify-start sm:justify-end">
+                <span class="label-text group-hover:text-accent transition-colors">
+                  {news.data.tags.join(', ')}
+                </span>
+              </div>
+            </Grid>
+          </a>
+        ))}
+      </div>
+    </Container>
+  </section>
+
+  <section class="py-[clamp(96px,14vw,192px)] border-t border-line text-center">
+    <Container>
+      <RollLink href="/contact" class="display-xl hover:text-accent">
+        Let's talk
+      </RollLink>
+    </Container>
+  </section>
+</BaseLayout>
+
+<script>
+  import { gsap } from 'gsap';
+  import SplitType from 'split-type';
+
+  document.addEventListener('astro:page-load', () => {
+    // Only run if on Home
+    const heroTitle = document.querySelector('h1.display-xl') as HTMLElement;
+    if (!heroTitle) return;
+
+    const header = document.getElementById('site-header');
+    const canvasContainer = document.getElementById('hero-canvas-container');
+    
+    let isIntroRun = false;
+
+    const runIntro = () => {
+      if (isIntroRun) return;
+      isIntroRun = true;
+      sessionStorage.setItem('home-intro', 'true');
+
+      // Tagline split
+      const text = new SplitType(heroTitle, { types: 'lines' });
+      text.lines?.forEach(line => {
+        const wrapper = document.createElement('div');
+        wrapper.style.overflow = 'hidden';
+        line.parentNode?.insertBefore(wrapper, line);
+        wrapper.appendChild(line);
+      });
+
+      // Canvas fade in
+      if (canvasContainer) {
+        gsap.fromTo(canvasContainer, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: 'linear' });
+      }
+
+      // Tagline reveal
+      gsap.fromTo(text.lines, 
+        { yPercent: 110 },
+        { yPercent: 0, duration: 1.2, ease: 'expo.out', stagger: 0.12, onComplete: () => text.revert() }
+      );
+
+      // Header fade in
+      if (header) {
+        gsap.fromTo(header, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'linear', delay: 0.6 });
+      }
+    };
+
+    if (sessionStorage.getItem('home-intro') === 'true') {
+      if (canvasContainer) canvasContainer.style.opacity = '1';
+      if (header) header.style.opacity = '1';
+    } else {
+      if (canvasContainer) canvasContainer.style.opacity = '0';
+      if (header) header.style.opacity = '0';
+      gsap.set(heroTitle, { opacity: 0 }); // Hide briefly before split handles it
+      setTimeout(() => gsap.set(heroTitle, { opacity: 1 }), 50);
+
+      document.addEventListener('intro:start', runIntro, { once: true });
+    }
+
+    // Initialize WebGL Hero
+    const initHero = () => {
+      const load = () => {
+        import('../lib/webgl/hero').then(mod => mod.initHeroWebGL(canvasContainer!));
+      };
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(load);
+      } else {
+        setTimeout(load, 100);
+      }
+    };
+
+    initHero();
+
+    // Cleanup WebGL on page exit
+    document.addEventListener('astro:before-swap', () => {
+      if (canvasContainer) {
+        import('../lib/webgl/hero').then(mod => mod.destroyHeroWebGL(canvasContainer));
+      }
+    }, { once: true });
+
+  });
+</script>

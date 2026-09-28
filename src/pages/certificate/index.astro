@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/Container.astro';
+import Grid from '../../components/Grid.astro';
+
+const news = await getCollection('news');
+news.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="Certificate - Interaktif Studio">
+  <div class="pt-32 pb-32">
+    <Container>
+      <h1 class="display-xl mb-16">Certificate</h1>
+
+      <div class="border-t border-line">
+        {news.map((item) => (
+          <a 
+            href={`/certificate/${item.id}`} 
+            class="group block border-b border-line hover:bg-surface-2 transition-colors duration-fast"
+          >
+            <Grid class="py-8 items-center gap-y-4">
+              <div class="col-span-4 sm:col-span-2 lg:col-span-3">
+                <span class="label-text text-text-muted">
+                  {new Date(item.data.date).toISOString().split('T')[0]}
+                </span>
+              </div>
+              <div class="col-span-4 sm:col-span-5 lg:col-span-6">
+                <h3 class="h2 text-xl sm:text-2xl">{item.data.title}</h3>
+              </div>
+              <div class="col-span-4 sm:col-span-1 lg:col-span-3 flex justify-start sm:justify-end">
+                <span class="label-text group-hover:text-accent transition-colors">
+                  {item.data.tags.join(', ')}
+                </span>
+              </div>
+            </Grid>
+          </a>
+        ))}
+      </div>
+    </Container>
+  </div>
+</BaseLayout>

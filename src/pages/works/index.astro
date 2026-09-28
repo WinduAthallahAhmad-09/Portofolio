@@ -1,0 +1,152 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/Container.astro';
+import Grid from '../../components/Grid.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import Chip from '../../components/Chip.astro';
+import { categories } from '../../config/categories';
+
+const works = await getCollection('works');
+works.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const totalWorks = works.length;
+---
+
+<BaseLayout title="Works - Interaktif Studio">
+  <div class="pt-32 pb-16">
+    <Container>
+      <div class="mb-16">
+        <h1 class="display-xl">
+          Works <sup id="works-count" class="text-3xl lg:text-5xl font-mono text-text-muted ml-4">{totalWorks}</sup>
+        </h1>
+      </div>
+
+      <!-- Filters (Static for M4, Animated in M6) -->
+      <div class="flex flex-wrap gap-3 mb-16">
+        <Chip as="button" active={true} class="filter-btn" data-category="all">
+          All <span class="ml-2 text-text-muted">{totalWorks}</span>
+        </Chip>
+        {categories.map(cat => {
+          const count = works.filter(w => w.data.categories.includes(cat.slug)).length;
+          if (count === 0) return null;
+          return (
+            <Chip as="button" class="filter-btn" data-category={cat.slug}>
+              {cat.label} <span class="ml-2 text-text-muted">{count}</span>
+            </Chip>
+          );
+        })}
+      </div>
+
+      <Grid class="gap-y-16" id="works-grid">
+        {works.map((work, idx) => (
+          <div class="work-item col-span-4 sm:col-span-4 lg:col-span-4" data-categories={work.data.categories.join(',')}>
+            <WorkCard work={work} eager={idx < 3} />
+          </div>
+        ))}
+      </Grid>
+    </Container>
+  </div>
+</BaseLayout>
+
+<script>
+  import { gsap } from 'gsap';
+  import { Flip } from 'gsap/Flip';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  document.addEventListener('astro:page-load', () => {
+    const worksGrid = document.getElementById('works-grid');
+    if (!worksGrid) return; // Not on Works page
+
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const workItems = document.querySelectorAll('.work-item');
+    const countDisplay = document.getElementById('works-count');
+
+    // Filter Function
+    const applyFilter = (category: string, updateUrl = true) => {
+      // Update buttons
+      filterBtns.forEach(btn => {
+        const isActive = btn.getAttribute('data-category') === category;
+        btn.setAttribute('aria-pressed', String(isActive));
+        if (isActive) {
+          btn.classList.add('bg-text', 'text-bg', 'border-text');
+          btn.classList.remove('bg-transparent', 'text-text');
+        } else {
+          btn.classList.remove('bg-text', 'text-bg', 'border-text');
+          btn.classList.add('bg-transparent', 'text-text');
+        }
+      });
+
+      // Update URL
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        if (category === 'all') {
+          url.searchParams.delete('c');
+        } else {
+          url.searchParams.set('c', category);
+        }
+        window.history.replaceState({}, '', url);
+      }
+
+      // Flip animation
+      const state = Flip.getState(workItems);
+
+      let visibleCount = 0;
+      workItems.forEach(item => {
+        const itemEl = item as HTMLElement;
+        const categories = itemEl.getAttribute('data-categories')?.split(',') || [];
+        
+        if (category === 'all' || categories.includes(category)) {
+          itemEl.style.display = 'block';
+          visibleCount++;
+        } else {
+          itemEl.style.display = 'none';
+        }
+      });
+
+      // Update count
+      if (countDisplay) {
+        countDisplay.textContent = String(visibleCount);
+      }
+
+      Flip.from(state, {
+        duration: 0.7,
+        ease: 'expo.inOut',
+        absolute: true,
+        onEnter: elements => gsap.fromTo(elements, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.7, ease: 'expo.out' }),
+        onLeave: elements => gsap.to(elements, { opacity: 0, scale: 0.95, duration: 0.7, ease: 'expo.inOut' })
+      });
+      
+      // Refresh ScrollTrigger after layout shift
+      setTimeout(() => ScrollTrigger.refresh(), 800);
+    };
+
+    // Attach Listeners
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const cat = target.getAttribute('data-category');
+        if (cat) applyFilter(cat);
+      });
+    });
+
+    // Read initial from URL (Deep link)
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialCat = urlParams.get('c');
+    
+    if (initialCat) {
+      applyFilter(initialCat, false);
+    } else {
+      // Entrance batch animation on load
+      ScrollTrigger.batch('.work-item', {
+        onEnter: batch => {
+          gsap.fromTo(batch, 
+            { opacity: 0, y: 40 },
+            { opacity: 1, y: 0, duration: 0.9, stagger: 0.08, ease: 'expo.out' }
+          );
+        },
+        once: true
+      });
+    }
+  });
+</script>

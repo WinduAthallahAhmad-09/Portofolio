@@ -1,0 +1,135 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/Container.astro';
+import Grid from '../../components/Grid.astro';
+import Button from '../../components/Button.astro';
+
+export async function getStaticPaths() {
+  const works = await getCollection('works');
+  // Sort to get correct prev/next
+  works.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  
+  return works.map((work, idx) => {
+    return {
+      params: { slug: work.id },
+      props: {
+        work,
+        prev: idx > 0 ? works[idx - 1] : null,
+        next: idx < works.length - 1 ? works[idx + 1] : null,
+      },
+    };
+  });
+}
+
+const { work, prev, next } = Astro.props;
+const { title, date, categories, client, role, link, cover, coverAlt, accentColor } = work.data;
+const { Content } = await render(work);
+---
+
+<BaseLayout title={`${title} - Works`}>
+  <article class="pt-32 pb-16">
+    <Container class="mb-16">
+      <h1 class="display-xl mb-12" data-reveal="lines">{title}</h1>
+      
+      <Grid class="py-8 border-t border-line label-text">
+        <div class="col-span-2 sm:col-span-2 lg:col-span-3 flex flex-col gap-2">
+          <span class="text-text-muted">Date</span>
+          <span>{new Date(date).getFullYear()}</span>
+        </div>
+        <div class="col-span-2 sm:col-span-2 lg:col-span-3 flex flex-col gap-2">
+          <span class="text-text-muted">Role</span>
+          <span>{role || 'N/A'}</span>
+        </div>
+        <div class="col-span-2 sm:col-span-2 lg:col-span-3 flex flex-col gap-2 mt-8 sm:mt-0">
+          <span class="text-text-muted">Client</span>
+          <span>{client || 'N/A'}</span>
+        </div>
+        <div class="col-span-2 sm:col-span-2 lg:col-span-3 flex flex-col gap-2 mt-8 sm:mt-0">
+          <span class="text-text-muted">Categories</span>
+          <span>{categories.join(', ')}</span>
+        </div>
+      </Grid>
+    </Container>
+
+    <!-- Main Media -->
+    <div class="w-full aspect-[16/9] bg-surface-2 overflow-hidden mb-24" style={`background-color: ${accentColor}33;`} data-reveal="image">
+      <Picture 
+        src={cover} 
+        alt={coverAlt} 
+        formats={['avif', 'webp']} 
+        widths={[768, 1200, 1920, 2560]} 
+        sizes="100vw" 
+        loading="eager"
+        fetchpriority="high"
+        class="w-full h-full object-cover"
+      />
+    </div>
+
+    <!-- Content -->
+    <Container class="mb-32">
+      <Grid>
+        <div class="col-span-4 sm:col-span-8 lg:col-start-4 lg:col-span-6 prose prose-invert prose-lg max-w-[720px]">
+          <Content />
+          
+          {link && (
+            <div class="mt-12">
+              <Button href={link} variant="primary" target="_blank" rel="noopener noreferrer">
+                Visit Project &nearr;
+              </Button>
+            </div>
+          )}
+        </div>
+      </Grid>
+    </Container>
+
+    <!-- Prev/Next Navigation -->
+    <Container>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-px bg-line border-y border-line">
+        {prev ? (
+          <a href={`/works/${prev.id}`} class="group block relative bg-bg p-12 lg:p-24 transition-colors overflow-hidden cursor-none" data-cursor="view">
+            <div class="absolute inset-0 z-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500 ease-out">
+              <div class="w-full h-full [clip-path:inset(8%)] group-hover:[clip-path:inset(0)] transition-[clip-path] duration-700 ease-out">
+                <Picture src={prev.data.cover} alt={prev.data.coverAlt} formats={['avif', 'webp']} widths={[480, 768]} sizes="(max-width: 768px) 100vw, 50vw" class="w-full h-full object-cover scale-[1.15] group-hover:scale-100 transition-transform duration-700 ease-out" />
+              </div>
+            </div>
+            <div class="relative z-10 mix-blend-difference">
+              <span class="label-text text-text-muted block mb-4">Previous</span>
+              <span class="h2">{prev.data.title}</span>
+            </div>
+          </a>
+        ) : <div class="bg-bg"></div>}
+        
+        {next ? (
+          <a href={`/works/${next.id}`} class="group block relative bg-bg p-12 lg:p-24 text-left sm:text-right transition-colors overflow-hidden cursor-none" data-cursor="view">
+            <div class="absolute inset-0 z-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500 ease-out">
+              <div class="w-full h-full [clip-path:inset(8%)] group-hover:[clip-path:inset(0)] transition-[clip-path] duration-700 ease-out">
+                <Picture src={next.data.cover} alt={next.data.coverAlt} formats={['avif', 'webp']} widths={[480, 768]} sizes="(max-width: 768px) 100vw, 50vw" class="w-full h-full object-cover scale-[1.15] group-hover:scale-100 transition-transform duration-700 ease-out" />
+              </div>
+            </div>
+            <div class="relative z-10 mix-blend-difference">
+              <span class="label-text text-text-muted block mb-4">Next</span>
+              <span class="h2">{next.data.title}</span>
+            </div>
+          </a>
+        ) : <div class="bg-bg"></div>}
+      </div>
+    </Container>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  /* Basic prose styling for Markdown */
+  .prose h1, .prose h2, .prose h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    margin-top: 2em;
+    margin-bottom: 1em;
+  }
+  .prose p {
+    margin-bottom: 1.5em;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+</style>
