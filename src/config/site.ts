@@ -5,7 +5,7 @@ export const siteConfig = {
   email: 'hello@yourstudio.com',
   socials: [
     { name: 'X', url: 'https://x.com' },
-    { name: 'Instagram', url: 'https://instagram.com' }
+    { name: 'Instagram', handle: '@winduhmad', url: 'https://instagram.com/winduhmad' }
   ],
   url: 'https://yourstudio.com',
   ogImage: '/og-image.jpg'
