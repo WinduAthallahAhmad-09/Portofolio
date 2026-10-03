@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: 'My Studio',
-  tagline: 'Portofolio',
+  name: "Windu's Studio",
+  tagline: 'Windu Athallah Ahmad',
   description: 'Portfolio of our creative studio.',
   email: 'hello@yourstudio.com',
   socials: [

@@ -61,8 +61,8 @@ import { siteConfig } from '../config/site';
         // Slide away
         gsap.to(preloader, {
           yPercent: -100,
-          duration: 0.8,
-          ease: 'expo.inOut',
+          duration: 1.35,
+          ease: 'power3.inOut',
           onComplete: () => {
             preloader.style.display = 'none';
             window.__spaNavigated = true;

@@ -27,13 +27,15 @@ const latestNews = allNews
     <div id="hero-canvas-container" class="absolute inset-0 z-0" aria-hidden="true"></div>
     
     <Container class="relative z-10 text-center pointer-events-none mt-16">
-      
-      <h1 class="display-xl text-text mix-blend-difference mb-8">
+      <p id="hero-eyebrow" class="label-text mb-6 text-text-muted" style="opacity: 0">
+        Informatics Engineering Student at UIN Jakarta
+      </p>
+      <h1 id="hero-title" class="display-xl text-balance text-text mix-blend-difference mb-8">
         {siteConfig.tagline}
       </h1>
-      <RollLink href="/contact" class="pointer-events-auto">
-        <span class="label-text">Let's Talk</span>
-      </RollLink>
+      <a id="hero-role" href="/contact" class="label-text pointer-events-auto" style="opacity: 0">
+        AI Engineer
+      </a>
     </Container>
   </section>
 
@@ -121,13 +123,14 @@ const latestNews = allNews
 
 <script>
   import { gsap } from 'gsap';
-  import SplitType from 'split-type';
 
   document.addEventListener('astro:page-load', () => {
     // Only run if on Home
-    const heroTitle = document.querySelector('h1.display-xl') as HTMLElement;
+    const heroTitle = document.getElementById('hero-title');
     if (!heroTitle) return;
 
+    const heroRole = document.getElementById('hero-role');
+    const heroEyebrow = document.getElementById('hero-eyebrow');
     const header = document.getElementById('site-header');
     const canvasContainer = document.getElementById('hero-canvas-container');
     
@@ -137,25 +140,32 @@ const latestNews = allNews
       if (isIntroRun) return;
       isIntroRun = true;
 
-      // Tagline split
-      const text = new SplitType(heroTitle, { types: 'lines' });
-      text.lines?.forEach(line => {
-        const wrapper = document.createElement('div');
-        wrapper.style.overflow = 'hidden';
-        line.parentNode?.insertBefore(wrapper, line);
-        wrapper.appendChild(line);
-      });
-
       // Canvas fade in
       if (canvasContainer) {
         gsap.fromTo(canvasContainer, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: 'linear' });
       }
 
-      // Tagline reveal
-      gsap.fromTo(text.lines, 
-        { yPercent: 110 },
-        { yPercent: 0, duration: 1.2, ease: 'expo.out', stagger: 0.12, onComplete: () => text.revert() }
+      // Reveal the name from left to right with a horizontal wipe.
+      gsap.fromTo(
+        heroTitle,
+        { clipPath: 'inset(0 100% 0 0)' },
+        {
+          clipPath: 'inset(0 0% 0 0)',
+          duration: 1.8,
+          ease: 'power3.inOut',
+          onComplete: () => gsap.set(heroTitle, { clearProps: 'clipPath' })
+        }
       );
+
+      // Fade the student description in place above the name.
+      if (heroEyebrow) {
+        gsap.fromTo(heroEyebrow, { opacity: 0 }, { opacity: 1, duration: 1.1, delay: 0.2, ease: 'power2.out' });
+      }
+
+      // Fade the role label in place after the name begins to appear.
+      if (heroRole) {
+        gsap.fromTo(heroRole, { opacity: 0 }, { opacity: 1, duration: 1.2, delay: 0.95, ease: 'power2.out' });
+      }
 
       // Header fade in
       if (header) {
@@ -166,11 +176,14 @@ const latestNews = allNews
     if (window.__spaNavigatedHome) {
       if (canvasContainer) canvasContainer.style.opacity = '1';
       if (header) header.style.opacity = '1';
+      gsap.set(heroTitle, { opacity: 1, clearProps: 'clipPath' });
+      if (heroEyebrow) gsap.set(heroEyebrow, { opacity: 1 });
+      if (heroRole) gsap.set(heroRole, { opacity: 1 });
     } else {
       window.__spaNavigatedHome = true;
       if (canvasContainer) canvasContainer.style.opacity = '0';
       if (header) header.style.opacity = '0';
-      gsap.set(heroTitle, { opacity: 0 });
+      gsap.set(heroTitle, { opacity: 0, clipPath: 'inset(0 100% 0 0)' });
       setTimeout(() => gsap.set(heroTitle, { opacity: 1 }), 50);
 
       // Listen for intro:start or preloader:complete
